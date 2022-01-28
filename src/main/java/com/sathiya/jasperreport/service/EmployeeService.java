@@ -5,12 +5,16 @@ package com.sathiya.jasperreport.service;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.jasperreports.engine.export.JRCsvExporter;
+import net.sf.jasperreports.export.SimpleExporterInput;
+import net.sf.jasperreports.export.SimpleWriterExporterOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
@@ -52,9 +56,13 @@ public class EmployeeService {
 		if(reportFormat.equalsIgnoreCase("html")) {
 			JasperExportManager.exportReportToHtmlFile(jasperPrint, root.toString()+"/employee.html");
 		} else if (reportFormat.equalsIgnoreCase("pdf")) {
-			
 			JasperExportManager.exportReportToPdfFile(jasperPrint, root.toString()+"/employee.pdf");
 		}
+
+		JRCsvExporter export = new JRCsvExporter();
+		export.setExporterInput(new SimpleExporterInput(jasperPrint));
+		export.setExporterOutput(new SimpleWriterExporterOutput(root.toString()+"/employee.cvs"));
+		export.exportReport();
 		return root.toString()+"/employee."+ reportFormat;
 	}
 }
