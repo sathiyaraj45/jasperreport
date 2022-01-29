@@ -3,11 +3,10 @@
  */
 package com.sathiya.jasperreport.controller;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.List;
+
+import com.sathiya.jasperreport.service.EmployeeReport;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -33,6 +32,9 @@ public class EmployeeControlller {
 	
 	@Autowired
 	private EmployeeService empServ;
+
+	@Autowired
+	private EmployeeReport empReport;
 	
 	@GetMapping("/")
 	public @ResponseBody List<Employee> getAllEmployee() {
@@ -51,6 +53,22 @@ public class EmployeeControlller {
 	@GetMapping(value= "/report/html", produces = {"application/json"})
 	public @ResponseBody byte[] generateReportHTML() throws JRException, IOException {
 		String rep = empServ.exportReport("html");
+		File file = ResourceUtils.getFile(rep);
+		InputStream in = new FileInputStream(file);
+		return IOUtils.toByteArray(in);
+	}
+
+	@GetMapping(value = "/download/report/employee.pdf", produces = {"application/pdf"})
+	public @ResponseBody byte[] employeePDF() throws IOException, JRException {
+		String rep = empReport.exportPDF("employee");
+		File file = ResourceUtils.getFile(rep);
+		InputStream in = new FileInputStream(file);
+		return IOUtils.toByteArray(in);
+	}
+
+	@GetMapping(value = "/download/report/employee.cvs", produces = {"application/cvs"})
+	public @ResponseBody byte[] employeeCVS() throws IOException, JRException {
+		String rep = empReport.exportCVS("employee");
 		File file = ResourceUtils.getFile(rep);
 		InputStream in = new FileInputStream(file);
 		return IOUtils.toByteArray(in);
